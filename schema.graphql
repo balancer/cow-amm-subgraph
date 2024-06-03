@@ -1,0 +1,100 @@
+type Factory @entity {
+  id: Bytes!
+  pools: [Pool!] @derivedFrom(field: "factory")
+}
+
+type Pool @entity {
+  id: Bytes!
+  address: Bytes!
+  factory: Factory!
+  name: String!
+  symbol: String!
+  totalShares: BigInt!
+
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+
+  swapsCount: BigInt!
+  holdersCount: BigInt!
+
+  tokens: [PoolToken!]! @derivedFrom(field: "pool")
+  snapshots: [PoolSnapshot!]! @derivedFrom(field: "pool")
+}
+
+type PoolToken @entity {
+  id: Bytes!
+  pool: Pool!
+  index: Int!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  address: Bytes!
+  balance: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  address: Bytes!
+}
+
+type Swap @entity(immutable: true) {
+  id: Bytes!
+  pool: Bytes!
+  tokenIn: Bytes!
+  tokenInSymbol: String!
+  tokenOutSymbol: String!
+  tokenAmountOut: BigInt!
+  tokenOut: Bytes!
+  tokenAmountIn: BigInt!
+  user: User!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+}
+
+enum InvestType {
+  Join
+  Exit
+}
+
+type JoinExit @entity(immutable: true) {
+  id: Bytes!
+  type: InvestType!
+  sender: Bytes!
+  amounts: [BigInt!]!
+  pool: Pool!
+  user: User!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+  logIndex: BigInt!
+}
+
+type PoolShare @entity {
+  id: ID!
+  pool: Pool!
+  user: User!
+  balance: BigInt!
+}
+
+type PoolSnapshot @entity {
+  id: ID!
+  pool: Pool!
+  timestamp: Int!
+  totalShares: BigInt!
+  swapsCount: BigInt!
+  holdersCount: BigInt!
+  balances: [BigInt!]!
+}
+
+type User @entity {
+  id: Bytes!
+  swaps: [Swap!] @derivedFrom(field: "user")
+  shares: [PoolShare!] @derivedFrom(field: "user")
+  joinExits: [JoinExit!] @derivedFrom(field: "user")
+}

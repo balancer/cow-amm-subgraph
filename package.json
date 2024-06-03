@@ -1,0 +1,20 @@
+{
+  "name": "cow-amm",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen --output-dir src/types/",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ cow-amm",
+    "create-local": "graph create --node http://localhost:8020/ cow-amm",
+    "remove-local": "graph remove --node http://localhost:8020/ cow-amm",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 cow-amm",
+    "test": "graph test"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.66.0",
+    "@graphprotocol/graph-ts": "0.32.0"
+  },
+  "devDependencies": {
+    "matchstick-as": "0.5.0"
+  }
+}
