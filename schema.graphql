@@ -9,7 +9,7 @@ type Pool @entity {
   factory: Factory!
   name: String!
   symbol: String!
-  totalShares: BigInt!
+  totalShares: BigDecimal!
 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -25,12 +25,12 @@ type Pool @entity {
 type PoolToken @entity {
   id: Bytes!
   pool: Pool!
-  index: Int!
+  token: Token!
   name: String!
   symbol: String!
   decimals: Int!
   address: Bytes!
-  balance: BigInt!
+  balance: BigDecimal!
 }
 
 type Token @entity {
@@ -47,9 +47,9 @@ type Swap @entity(immutable: true) {
   tokenIn: Bytes!
   tokenInSymbol: String!
   tokenOutSymbol: String!
-  tokenAmountOut: BigInt!
+  tokenAmountOut: BigDecimal!
   tokenOut: Bytes!
-  tokenAmountIn: BigInt!
+  tokenAmountIn: BigDecimal!
   user: User!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -66,7 +66,7 @@ type JoinExit @entity(immutable: true) {
   id: Bytes!
   type: InvestType!
   sender: Bytes!
-  amounts: [BigInt!]!
+  amounts: [BigDecimal!]!
   pool: Pool!
   user: User!
   blockNumber: BigInt!
@@ -79,17 +79,17 @@ type PoolShare @entity {
   id: ID!
   pool: Pool!
   user: User!
-  balance: BigInt!
+  balance: BigDecimal!
 }
 
 type PoolSnapshot @entity {
   id: ID!
   pool: Pool!
   timestamp: Int!
-  totalShares: BigInt!
+  totalShares: BigDecimal!
   swapsCount: BigInt!
   holdersCount: BigInt!
-  balances: [BigInt!]!
+  balances: [BigDecimal!]!
 }
 
 type User @entity {
