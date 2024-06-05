@@ -8,9 +8,9 @@ dataSources:
     name: Factory
     network: sepolia
     source:
-      address: "0x822CA05014A815Eba5349e625D6D1CA984Bbcf9B"
+      address: "0xD689e9ba3b24D9a5Eee3d965E2681EC4d8839daE"
       abi: BFactory
-      startBlock: 5921980
+      startBlock: 6038364
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -34,7 +34,7 @@ dataSources:
     source:
       address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
       abi: CoWSettlement
-      startBlock: 5921980
+      startBlock: 6038364
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
