@@ -1,10 +1,10 @@
 import { ZERO_ADDRESS, ZERO_BD } from '../helpers/constants'
 import { createPoolSnapshot, createPoolToken, getPoolShare, loadPoolToken } from '../helpers/entities'
 import { LOG_JOIN, LOG_EXIT, Transfer } from '../types/templates/Pool/Pool'
-import { Pool, PoolToken } from '../types/schema'
+import { Pool, PoolToken, Swap } from '../types/schema'
 import { hexToDecimal, tokenToDecimal } from '../helpers/misc';
 import { Address, BigInt, log } from '@graphprotocol/graph-ts';
-import { LOG_CALL } from '../types/Factory/BPool';
+import { LOG_CALL, LOG_SWAP } from '../types/Factory/BPool';
 
 export function handleJoin(event: LOG_JOIN): void {
   let poolToken = loadPoolToken(event.address, event.params.tokenIn);
@@ -27,6 +27,55 @@ export function handleExitPool(event: LOG_EXIT): void {
   let pool = Pool.load(event.address) as Pool;
   createPoolSnapshot(pool, event.block.timestamp.toI32());
 }
+
+export function handleSwap(event: LOG_SWAP): void {
+  let poolAddress = event.address;
+
+  let pool = Pool.load(poolAddress);
+  if (pool == null) return; // not a Balancer / CoW AMM pool
+
+  pool.swapsCount = pool.swapsCount.plus(BigInt.fromI32(1));
+  pool.save();
+
+  let tokenInAddress = event.params.tokenIn;
+  let tokenOutAddress = event.params.tokenOut;
+
+  let poolTokenIn = loadPoolToken(poolAddress, tokenInAddress);
+  let poolTokenOut = loadPoolToken(poolAddress, tokenOutAddress);
+  if (poolTokenIn == null || poolTokenOut == null) return;
+
+  let tokenAmountIn = tokenToDecimal(event.params.tokenAmountIn, poolTokenIn.decimals);
+  let tokenAmountOut = tokenToDecimal(event.params.tokenAmountOut, poolTokenOut.decimals);
+
+  let newInAmount = poolTokenIn.balance.plus(tokenAmountIn);
+  poolTokenIn.balance = newInAmount;
+  poolTokenIn.save();
+
+  let newOutAmount = poolTokenOut.balance.minus(tokenAmountOut);
+  poolTokenOut.balance = newOutAmount;
+  poolTokenOut.save();
+
+  let swap = new Swap(event.transaction.hash.concatI32(event.logIndex.toI32()));
+
+  swap.pool = poolAddress;
+  swap.tokenIn = tokenInAddress;
+  swap.tokenInSymbol = poolTokenIn.symbol;
+  swap.tokenAmountIn = tokenAmountIn;
+  swap.tokenOut = tokenOutAddress;
+  swap.tokenOutSymbol = poolTokenOut.symbol;
+  swap.tokenAmountOut = tokenAmountOut;
+  swap.user = event.transaction.from;
+
+  swap.logIndex = event.logIndex;
+  swap.blockNumber = event.block.number;
+  swap.blockTimestamp = event.block.timestamp;
+  swap.transactionHash = event.transaction.hash;
+
+  swap.save();
+
+  createPoolSnapshot(pool, event.block.timestamp.toI32());
+}
+
 
 export function handleRebind(event: LOG_CALL): void {
   let poolAddress = event.address;

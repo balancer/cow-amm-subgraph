@@ -34,7 +34,7 @@ export function handleTrade(event: Trade): void {
 
   let swap = new Swap(event.transaction.hash.concatI32(event.logIndex.toI32()));
 
-  swap.pool = event.params.owner;
+  swap.pool = poolAddress;
   swap.tokenIn = tokenInAddress;
   swap.tokenInSymbol = poolTokenIn.symbol;
   swap.tokenAmountIn = tokenAmountIn;
