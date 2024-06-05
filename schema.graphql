@@ -58,11 +58,11 @@ type Swap @entity(immutable: true) {
 }
 
 enum InvestType {
-  Join
-  Exit
+  Add
+  Remove
 }
 
-type JoinExit @entity(immutable: true) {
+type AddRemove @entity(immutable: true) {
   id: Bytes!
   type: InvestType!
   sender: Bytes!
@@ -96,5 +96,5 @@ type User @entity {
   id: Bytes!
   swaps: [Swap!] @derivedFrom(field: "user")
   shares: [PoolShare!] @derivedFrom(field: "user")
-  joinExits: [JoinExit!] @derivedFrom(field: "user")
+  addRemoves: [AddRemove!] @derivedFrom(field: "user")
 }

@@ -69,8 +69,12 @@ templates:
       eventHandlers:
         - event: LOG_JOIN(indexed address,indexed address,uint256)
           handler: handleJoin
+          receipt: true
         - event: LOG_EXIT(indexed address,indexed address,uint256)
           handler: handleExit
+          receipt: true
+        - event: LOG_SWAP(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleSwap
         - event: LOG_CALL(indexed bytes4,indexed address,bytes)
           topic0: "0x3fdddaa200000000000000000000000000000000000000000000000000000000"
           handler: handleRebind

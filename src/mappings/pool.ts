@@ -1,34 +1,70 @@
 import { ZERO_ADDRESS, ZERO_BD } from '../helpers/constants'
-import { createPoolSnapshot, createPoolToken, getPoolShare, loadPoolToken } from '../helpers/entities'
+import { createPoolSnapshot, createPoolToken, createUser, getPoolShare, getToken, loadPoolToken } from '../helpers/entities'
 import { LOG_JOIN, LOG_EXIT, Transfer } from '../types/templates/Pool/Pool'
-import { Pool, PoolToken, Swap } from '../types/schema'
+import { AddRemove, Pool, PoolToken, Swap } from '../types/schema'
 import { hexToDecimal, tokenToDecimal } from '../helpers/misc';
-import { Address, BigInt, log } from '@graphprotocol/graph-ts';
+import { Address, BigDecimal, BigInt, log } from '@graphprotocol/graph-ts';
 import { LOG_CALL, LOG_SWAP } from '../types/Factory/BPool';
 
 export function handleJoin(event: LOG_JOIN): void {
+  createUser(event.params.caller);
+
   let poolToken = loadPoolToken(event.address, event.params.tokenIn);
   let tokenAmountIn = tokenToDecimal(event.params.tokenAmountIn, poolToken.decimals);
   let newAmount = poolToken.balance.plus(tokenAmountIn);
   poolToken.balance = newAmount;
   poolToken.save();
 
+  let token = getToken(event.params.tokenIn);
+  let amount = tokenToDecimal(event.params.tokenAmountIn, token.decimals);
+
+  let addRemove = new AddRemove(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  addRemove.type = 'Add';
+  addRemove.amounts = [amount];
+  addRemove.pool = event.address;
+  addRemove.user = event.params.caller;
+  addRemove.sender = event.params.caller;
+  addRemove.blockNumber = event.block.number;
+  addRemove.blockTimestamp = event.block.timestamp;
+  addRemove.transactionHash = event.transaction.hash;
+  addRemove.logIndex = event.logIndex;
+  addRemove.save();
+
   let pool = Pool.load(event.address) as Pool;
   createPoolSnapshot(pool, event.block.timestamp.toI32());
 }
 
-export function handleExitPool(event: LOG_EXIT): void {
+export function handleExit(event: LOG_EXIT): void {
+  createUser(event.params.caller);
+
   let poolToken = loadPoolToken(event.address, event.params.tokenOut);
   let tokenAmountOut = tokenToDecimal(event.params.tokenAmountOut, poolToken.decimals);
   let newAmount = poolToken.balance.minus(tokenAmountOut);
   poolToken.balance = newAmount;
   poolToken.save();
 
+  let token = getToken(event.params.tokenOut);
+  let amount = tokenToDecimal(event.params.tokenAmountOut, token.decimals);
+
+  let addRemove = new AddRemove(event.transaction.hash.concatI32(event.logIndex.toI32()));
+  addRemove.type = 'Remove';
+  addRemove.amounts = [amount];
+  addRemove.pool = event.address;
+  addRemove.user = event.params.caller;
+  addRemove.sender = event.params.caller;
+  addRemove.blockNumber = event.block.number;
+  addRemove.blockTimestamp = event.block.timestamp;
+  addRemove.transactionHash = event.transaction.hash;
+  addRemove.logIndex = event.logIndex;
+  addRemove.save();
+
   let pool = Pool.load(event.address) as Pool;
   createPoolSnapshot(pool, event.block.timestamp.toI32());
 }
 
 export function handleSwap(event: LOG_SWAP): void {
+  createUser(event.params.caller);
+
   let poolAddress = event.address;
 
   let pool = Pool.load(poolAddress);
