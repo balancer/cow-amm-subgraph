@@ -10,6 +10,9 @@ type Pool @entity {
   name: String!
   symbol: String!
   totalShares: BigDecimal!
+  swapFee: BigDecimal!
+  isInitialized: Boolean!
+  weights: [BigDecimal!]!
 
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -20,6 +23,7 @@ type Pool @entity {
 
   tokens: [PoolToken!]! @derivedFrom(field: "pool")
   snapshots: [PoolSnapshot!]! @derivedFrom(field: "pool")
+  swaps: [Swap!]! @derivedFrom(field: "pool")
 }
 
 type PoolToken @entity {
@@ -31,10 +35,15 @@ type PoolToken @entity {
   decimals: Int!
   address: Bytes!
   balance: BigDecimal!
+  volume: BigDecimal!
+  surplus: BigDecimal!
+  swapFee: BigDecimal!
+  weight: BigDecimal!
+  index: Int!
 }
 
 type Token @entity {
-  id: ID!
+  id: Bytes!
   name: String!
   symbol: String!
   decimals: Int!
@@ -43,13 +52,18 @@ type Token @entity {
 
 type Swap @entity(immutable: true) {
   id: Bytes!
-  pool: Bytes!
+  pool: Pool!
   tokenIn: Bytes!
   tokenInSymbol: String!
   tokenOutSymbol: String!
   tokenAmountOut: BigDecimal!
+  expectedAmountOut: BigDecimal
   tokenOut: Bytes!
   tokenAmountIn: BigDecimal!
+  swapFeeToken: Bytes
+  swapFeeAmount: BigDecimal
+  surplusToken: Bytes
+  surplusAmount: BigDecimal
   user: User!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -76,20 +90,23 @@ type AddRemove @entity(immutable: true) {
 }
 
 type PoolShare @entity {
-  id: ID!
+  id: Bytes!
   pool: Pool!
   user: User!
   balance: BigDecimal!
 }
 
 type PoolSnapshot @entity {
-  id: ID!
+  id: Bytes!
   pool: Pool!
   timestamp: Int!
   totalShares: BigDecimal!
   swapsCount: BigInt!
   holdersCount: BigInt!
   balances: [BigDecimal!]!
+  totalSwapFees: [BigDecimal!]!
+  totalSurpluses: [BigDecimal!]!
+  totalSwapVolumes: [BigDecimal!]!
 }
 
 type User @entity {

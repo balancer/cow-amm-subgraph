@@ -2,12 +2,13 @@
   "name": "cow-amm",
   "license": "UNLICENSED",
   "scripts": {
-    "codegen": "graph codegen --output-dir src/types/",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ cow-amm",
     "create-local": "graph create --node http://localhost:8020/ cow-amm",
     "remove-local": "graph remove --node http://localhost:8020/ cow-amm",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 cow-amm",
+    "codegen": "yarn generate-manifests && graph codegen subgraph.yaml --output-dir src/types/",
+    "generate-manifests": "ts-node ./scripts/generate-manifests",
     "test": "graph test"
   },
   "dependencies": {
@@ -15,6 +16,33 @@
     "@graphprotocol/graph-ts": "0.32.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.5.0"
+    "@apollo/client": "^3.3.9",
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "@babel/preset-typescript": "^7.12.13",
+    "@graphprotocol/graph-cli": "0.69.0",
+    "@graphprotocol/graph-ts": "0.34.0",
+    "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^26.0.20",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^16.4.1",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "apollo-client": "^2.6.10",
+    "assemblyscript": "0.19.10",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.9.0",
+    "eslint-plugin-mocha-no-only": "^1.1.1",
+    "eslint-plugin-prettier": "^3.1.4",
+    "fs-extra": "^10.0.0",
+    "glob": "^7.1.6",
+    "handlebars": "^4.7.7",
+    "jest": "^26.6.3",
+    "js-yaml": "^4.0.0",
+    "path": "^0.12.7",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.5.0",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.0.2"
   }
 }

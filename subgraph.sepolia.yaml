@@ -4,16 +4,16 @@ schema:
 features:
   - grafting
 graft:
-  base: QmUvfS6hqU3nGQxFFzxoMBkufYJ7Jh3cYdTUM64hucgqe7
-  block: 20890715
+  base: QmZrQbRncM9NPWPpx9AZKjXZo6yoaqPe4HdhVTi77roG4i
+  block: 6812969
 dataSources:
   - kind: ethereum/contract
     name: Factory3
-    network: mainnet
+    network: sepolia
     source:
-      address: "0x23fcC2166F991B8946D195de53745E1b804C91B7"
+      address: "0x9F151748595bAA8829d44448Bb3181AD6b995E8e"
       abi: BFactory
-      startBlock: 20391510
+      startBlock: 6379376
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -33,11 +33,11 @@ dataSources:
           handler: handleNewPool
   - kind: ethereum/contract
     name: Factory4
-    network: mainnet
+    network: sepolia
     source:
-      address: "0xf76c421bAb7df8548604E60deCCcE50477C10462"
+      address: "0x1E3D76AC2BB67a2D7e8395d3A624b30AA9056DF9"
       abi: BFactory
-      startBlock: 20432455
+      startBlock: 6415186
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -57,11 +57,11 @@ dataSources:
           handler: handleNewPool
   - kind: ethereum
     name: Settlement
-    network: mainnet
+    network: sepolia
     source:
       address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
       abi: CoWSettlement
-      startBlock: 20391510
+      startBlock: 6379376
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -80,7 +80,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: mainnet
+    network: sepolia
     source:
       abi: BPool
     mapping:

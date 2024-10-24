@@ -4,40 +4,16 @@ schema:
 features:
   - grafting
 graft:
-  base: QmUvfS6hqU3nGQxFFzxoMBkufYJ7Jh3cYdTUM64hucgqe7
-  block: 20890715
+  base: QmTSU862YAXb5XMhGsE7JCajuvf5FPiZjrdvC9nnbzd86x
+  block: 260291332
 dataSources:
   - kind: ethereum/contract
-    name: Factory3
-    network: mainnet
-    source:
-      address: "0x23fcC2166F991B8946D195de53745E1b804C91B7"
-      abi: BFactory
-      startBlock: 20391510
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      file: ./src/mappings/factory.ts
-      entities:
-        - Pool
-      abis:
-        - name: BFactory
-          file: ./abis/BFactory.json
-        - name: BPool
-          file: ./abis/BPool.json
-        - name: BToken
-          file: ./abis/BToken.json
-      eventHandlers:
-        - event: LOG_NEW_POOL(indexed address,indexed address)
-          handler: handleNewPool
-  - kind: ethereum/contract
     name: Factory4
-    network: mainnet
+    network: arbitrum-one
     source:
-      address: "0xf76c421bAb7df8548604E60deCCcE50477C10462"
+      address: "0xE0e2Ba143EE5268DA87D529949a2521115987302"
       abi: BFactory
-      startBlock: 20432455
+      startBlock: 249675450
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -57,11 +33,11 @@ dataSources:
           handler: handleNewPool
   - kind: ethereum
     name: Settlement
-    network: mainnet
+    network: arbitrum-one
     source:
       address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
       abi: CoWSettlement
-      startBlock: 20391510
+      startBlock: 249675450
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -80,7 +56,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: mainnet
+    network: arbitrum-one
     source:
       abi: BPool
     mapping:

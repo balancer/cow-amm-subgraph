@@ -1,19 +1,67 @@
 specVersion: 1.0.0
 schema:
   file: ./schema.graphql
-features:
-  - grafting
-graft:
-  base: QmUvfS6hqU3nGQxFFzxoMBkufYJ7Jh3cYdTUM64hucgqe7
-  block: 20890715
 dataSources:
+  {{#if Factory}}
+  - kind: ethereum/contract
+    name: Factory
+    network: {{network}}
+    source:
+      address: '{{Factory.address}}'
+      abi: BFactory
+      startBlock: {{Factory.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/factory.ts
+      entities:
+        - Pool
+      abis:
+        - name: BFactory
+          file: ./abis/BFactory.json
+        - name: BPool
+          file: ./abis/BPool.json
+        - name: BToken
+          file: ./abis/BToken.json
+      eventHandlers:
+        - event: LOG_NEW_POOL(indexed address,indexed address)
+          handler: handleNewPool
+  {{/if}}
+  {{#if Factory2}}
+  - kind: ethereum/contract
+    name: Factory2
+    network: {{network}}
+    source:
+      address: '{{Factory2.address}}'
+      abi: BFactory
+      startBlock: {{Factory2.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/factory.ts
+      entities:
+        - Pool
+      abis:
+        - name: BFactory
+          file: ./abis/BFactory.json
+        - name: BPool
+          file: ./abis/BPool.json
+        - name: BToken
+          file: ./abis/BToken.json
+      eventHandlers:
+        - event: LOG_NEW_POOL(indexed address,indexed address)
+          handler: handleNewPool
+  {{/if}}
+  {{#if Factory3}}
   - kind: ethereum/contract
     name: Factory3
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x23fcC2166F991B8946D195de53745E1b804C91B7"
+      address: '{{Factory3.address}}'
       abi: BFactory
-      startBlock: 20391510
+      startBlock: {{Factory3.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -31,13 +79,15 @@ dataSources:
       eventHandlers:
         - event: LOG_NEW_POOL(indexed address,indexed address)
           handler: handleNewPool
+  {{/if}}
+  {{#if Factory4}}
   - kind: ethereum/contract
     name: Factory4
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xf76c421bAb7df8548604E60deCCcE50477C10462"
+      address: '{{Factory4.address}}'
       abi: BFactory
-      startBlock: 20432455
+      startBlock: {{Factory4.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -55,13 +105,15 @@ dataSources:
       eventHandlers:
         - event: LOG_NEW_POOL(indexed address,indexed address)
           handler: handleNewPool
+  {{/if}}
+  {{#if Settlement}}
   - kind: ethereum
     name: Settlement
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
+      address: '{{Settlement.address}}'
       abi: CoWSettlement
-      startBlock: 20391510
+      startBlock: {{Settlement.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -77,10 +129,11 @@ dataSources:
         - event: Trade(indexed address,address,address,uint256,uint256,uint256,bytes)
           handler: handleTrade
       file: ./src/mappings/cow.ts
+{{/if}}
 templates:
   - kind: ethereum/contract
     name: Pool
-    network: mainnet
+    network: {{network}}
     source:
       abi: BPool
     mapping:
