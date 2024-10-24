@@ -1,19 +1,14 @@
 specVersion: 1.0.0
 schema:
   file: ./schema.graphql
-features:
-  - grafting
-graft:
-  base: QmTSU862YAXb5XMhGsE7JCajuvf5FPiZjrdvC9nnbzd86x
-  block: 260291332
 dataSources:
   - kind: ethereum/contract
     name: Factory4
     network: arbitrum-one
     source:
-      address: "0xE0e2Ba143EE5268DA87D529949a2521115987302"
+      address: '0xE0e2Ba143EE5268DA87D529949a2521115987302'
       abi: BFactory
-      startBlock: 249675450
+      startBlock: 248291336
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -35,9 +30,9 @@ dataSources:
     name: Settlement
     network: arbitrum-one
     source:
-      address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
+      address: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
       abi: CoWSettlement
-      startBlock: 249675450
+      startBlock: 248291336
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

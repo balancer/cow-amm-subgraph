@@ -1,19 +1,14 @@
 specVersion: 1.0.0
 schema:
   file: ./schema.graphql
-features:
-  - grafting
-graft:
-  base: QmZ5RYZdrdSreBaMxjB65MUzW4WzVeSQU5tLwRskQNKnTW
-  block: 36332889
 dataSources:
   - kind: ethereum/contract
     name: Factory3
     network: gnosis
     source:
-      address: "0x7573B99BC09c11Dc0427fb9c6662bc603E008304"
+      address: '0x7573B99BC09c11Dc0427fb9c6662bc603E008304'
       abi: BFactory
-      startBlock: 35163914
+      startBlock: 35211810
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -35,7 +30,7 @@ dataSources:
     name: Factory4
     network: gnosis
     source:
-      address: "0x703Bd8115E6F21a37BB5Df97f78614ca72Ad7624"
+      address: '0x703Bd8115E6F21a37BB5Df97f78614ca72Ad7624'
       abi: BFactory
       startBlock: 35259725
     mapping:
@@ -59,9 +54,9 @@ dataSources:
     name: Settlement
     network: gnosis
     source:
-      address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
+      address: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
       abi: CoWSettlement
-      startBlock: 35163914
+      startBlock: 35211810
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
