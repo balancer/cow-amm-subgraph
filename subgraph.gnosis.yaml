@@ -71,6 +71,7 @@ dataSources:
       eventHandlers:
         - event: Trade(indexed address,address,address,uint256,uint256,uint256,bytes)
           handler: handleTrade
+          receipt: true
       file: ./src/mappings/cow.ts
 templates:
   - kind: ethereum/contract
