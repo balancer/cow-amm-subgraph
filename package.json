@@ -9,7 +9,9 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 cow-amm",
     "codegen": "yarn generate-manifests && graph codegen subgraph.yaml --output-dir src/types/",
     "generate-manifests": "ts-node ./scripts/generate-manifests",
-    "test": "graph test"
+    "test": "graph test",
+    "update-block-numbers": "node ./scripts/update-block-numbers.js",
+    "deploy-ormi": "sh ./scripts/deploy.sh"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.66.0",

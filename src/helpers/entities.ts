@@ -1,9 +1,7 @@
-import { Address, BigDecimal, Bytes } from "@graphprotocol/graph-ts";
-import { Pool, PoolSnapshot, PoolToken, PoolShare, Token, User } from "../types/schema";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
+import { PoolToken, PoolShare, Token } from "../types/schema";
 import { ZERO_BD } from "./constants";
 import { BToken } from "../types/templates/Pool/BToken";
-
-const DAY = 24 * 60 * 60;
 
 export function getPoolShareId(poolAddress: Address, userAddress: Address): Bytes {
     return poolAddress.concat(userAddress);
@@ -21,8 +19,6 @@ export function getPoolShare(poolAddress: Address, userAddress: Address): PoolSh
 }
 
 export function createPoolShare(poolAddress: Address, userAddress: Address): PoolShare {
-  createUser(userAddress);
-
   let id = getPoolShareId(poolAddress, userAddress);
   let poolShare = new PoolShare(id);
 
@@ -31,46 +27,6 @@ export function createPoolShare(poolAddress: Address, userAddress: Address): Poo
   poolShare.balance = ZERO_BD;
   poolShare.save();
   return poolShare;
-}
-
-export function createPoolSnapshot(pool: Pool, timestamp: i32): void {
-    let poolAddress = pool.id;
-    let dayTimestamp = timestamp - (timestamp % DAY);
-    
-    let snapshotId = poolAddress.concatI32(dayTimestamp);
-    let snapshot = PoolSnapshot.load(snapshotId);
-  
-    if (!snapshot) {
-      snapshot = new PoolSnapshot(snapshotId);
-    }
-
-    let poolTokens = pool.tokens.load();
-    let sortedPoolTokens = new Array<PoolToken>(poolTokens.length);
-    for (let i = 0; i < poolTokens.length; i++) {
-      sortedPoolTokens[poolTokens[i].index] = poolTokens[i];
-    }
-
-    let balances = new Array<BigDecimal>(poolTokens.length);
-    let swapFee = new Array<BigDecimal>(poolTokens.length);
-    let surplus = new Array<BigDecimal>(poolTokens.length);
-    let volume = new Array<BigDecimal>(poolTokens.length);
-    for (let i = 0; i < poolTokens.length; i++) {
-        balances[i] = sortedPoolTokens[i].balance;
-        swapFee[i] = sortedPoolTokens[i].swapFee;
-        surplus[i] = sortedPoolTokens[i].surplus;
-        volume[i] = sortedPoolTokens[i].volume;
-    }
-  
-    snapshot.pool = poolAddress;
-    snapshot.balances = balances;
-    snapshot.totalSwapFees = swapFee;
-    snapshot.totalSurpluses = surplus;
-    snapshot.totalSwapVolumes = volume;
-    snapshot.timestamp = dayTimestamp;
-    snapshot.totalShares = pool.totalShares;
-    snapshot.holdersCount = pool.holdersCount;
-    snapshot.swapsCount = pool.swapsCount;
-    snapshot.save();
 }
 
 export function createPoolToken(poolAddress: Address, tokenAddress: Address, index: i32): void {
@@ -121,15 +77,6 @@ export function getToken(tokenAddress: Address): Token {
   
     return token as Token;
 }
-
-export function createUser(userAddress: Address): void {
-    let user = User.load(userAddress);
-
-    if (!user) {
-      user = new User(userAddress);
-      user.save();
-    }
-  }
 
 export function loadPoolToken(poolAddress: Address, tokenAddress: Address): PoolToken {
     let poolTokenId = poolAddress.concat(tokenAddress);

@@ -22,7 +22,6 @@ type Pool @entity {
   holdersCount: BigInt!
 
   tokens: [PoolToken!]! @derivedFrom(field: "pool")
-  snapshots: [PoolSnapshot!]! @derivedFrom(field: "pool")
   swaps: [Swap!]! @derivedFrom(field: "pool")
 }
 
@@ -64,7 +63,7 @@ type Swap @entity(immutable: true) {
   swapFeeAmount: BigDecimal
   surplusToken: Bytes
   surplusAmount: BigDecimal
-  user: User!
+  user: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -82,7 +81,7 @@ type AddRemove @entity(immutable: true) {
   sender: Bytes!
   amounts: [BigDecimal!]!
   pool: Pool!
-  user: User!
+  user: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -92,26 +91,6 @@ type AddRemove @entity(immutable: true) {
 type PoolShare @entity {
   id: Bytes!
   pool: Pool!
-  user: User!
+  user: Bytes!
   balance: BigDecimal!
-}
-
-type PoolSnapshot @entity {
-  id: Bytes!
-  pool: Pool!
-  timestamp: Int!
-  totalShares: BigDecimal!
-  swapsCount: BigInt!
-  holdersCount: BigInt!
-  balances: [BigDecimal!]!
-  totalSwapFees: [BigDecimal!]!
-  totalSurpluses: [BigDecimal!]!
-  totalSwapVolumes: [BigDecimal!]!
-}
-
-type User @entity {
-  id: Bytes!
-  swaps: [Swap!] @derivedFrom(field: "user")
-  shares: [PoolShare!] @derivedFrom(field: "user")
-  addRemoves: [AddRemove!] @derivedFrom(field: "user")
 }

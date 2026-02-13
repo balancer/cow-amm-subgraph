@@ -9,6 +9,10 @@ dataSources:
       address: '0x7573B99BC09c11Dc0427fb9c6662bc603E008304'
       abi: BFactory
       startBlock: 35211810
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "44657834"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -33,6 +37,10 @@ dataSources:
       address: '0x703Bd8115E6F21a37BB5Df97f78614ca72Ad7624'
       abi: BFactory
       startBlock: 35259725
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "44657834"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -57,6 +65,10 @@ dataSources:
       address: '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
       abi: CoWSettlement
       startBlock: 35211810
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "44657834"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

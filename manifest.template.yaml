@@ -10,6 +10,10 @@ dataSources:
       address: '{{Factory.address}}'
       abi: BFactory
       startBlock: {{Factory.startBlock}}
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "{{ Pool.storeEventsFrom }}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -36,6 +40,10 @@ dataSources:
       address: '{{Factory2.address}}'
       abi: BFactory
       startBlock: {{Factory2.startBlock}}
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "{{ Pool.storeEventsFrom }}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -62,6 +70,10 @@ dataSources:
       address: '{{Factory3.address}}'
       abi: BFactory
       startBlock: {{Factory3.startBlock}}
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "{{ Pool.storeEventsFrom }}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -88,6 +100,10 @@ dataSources:
       address: '{{Factory4.address}}'
       abi: BFactory
       startBlock: {{Factory4.startBlock}}
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "{{ Pool.storeEventsFrom }}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -114,6 +130,10 @@ dataSources:
       address: '{{Settlement.address}}'
       abi: CoWSettlement
       startBlock: {{Settlement.startBlock}}
+    context:
+      storeEventsFrom:
+        type: BigInt
+        data: "{{ Pool.storeEventsFrom }}"
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

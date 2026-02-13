@@ -1,8 +1,11 @@
-import { BigDecimal } from "@graphprotocol/graph-ts";
+import {
+  BigDecimal,
+  dataSource,
+  DataSourceContext,
+} from "@graphprotocol/graph-ts";
 import { ZERO_BD, ZERO_BI } from "../helpers/constants";
-import { createPoolSnapshot } from "../helpers/entities";
-import { BToken } from "../types/Factory/BToken";
-import { LOG_NEW_POOL } from "../types/Factory/Factory";
+import { BToken } from "../types/Factory4/BToken";
+import { LOG_NEW_POOL } from "../types/Factory4/BFactory";
 import { Factory, Pool } from "../types/schema";
 import { Pool as PoolTemplate } from "../types/templates";
 
@@ -41,7 +44,11 @@ export function handleNewPool(event: LOG_NEW_POOL): void {
 
   pool.save();
 
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
+  const context = new DataSourceContext();
+  const storeEventsFrom = dataSource.context().get("storeEventsFrom");
+  if (storeEventsFrom) {
+    context.setBigInt("storeEventsFrom", storeEventsFrom.toBigInt());
+  }
 
-  PoolTemplate.create(poolAddress);
+  PoolTemplate.createWithContext(poolAddress, context);
 }

@@ -1,0 +1,52 @@
+name: Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: "Choose network"
+        required: true
+        default: "mainnet"
+        type: choice
+        options:
+          - mainnet
+          - gnosis
+          - sepolia
+          - arbitrum
+          - base
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: graph
+    env:
+      DEPLOY_KEY: ${{ secrets.ORMI_DEPLOY_KEY }}
+      NETWORK: ${{ inputs.network }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install
+        run: yarn install
+
+      - name: Generate manifests
+        id: generate-manifests
+        run: yarn generate-manifests
+
+      - name: Graph Codegen
+        id: graph-codegen
+        working-directory: ./subgraphs/v3-vault
+        run: yarn codegen subgraph.sepolia.yaml
+
+      - name: Graph Build
+        id: graph-build
+        working-directory: ./subgraphs/v3-vault
+        run: yarn build
+
+      - name: Deploy
+        run: |
+          sh script/deploy.sh "$NETWORK"
