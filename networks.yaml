@@ -1,5 +1,7 @@
 sepolia:
   network: sepolia
+  Pool:
+    storeEventsFrom: "10251525"
   Settlement:
     address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
     startBlock: 6379773
@@ -11,6 +13,8 @@ sepolia:
     startBlock: 6415186
 mainnet:
   network: mainnet
+  Pool:
+    storeEventsFrom: "24447336"
   Settlement:
     address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
     startBlock: 20412073
@@ -22,6 +26,8 @@ mainnet:
     startBlock: 20432455
 gnosis:
   network: gnosis
+  Pool:
+    storeEventsFrom: "44657834"
   Settlement:
     address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
     startBlock: 35211810
@@ -33,9 +39,21 @@ gnosis:
     startBlock: 35259725
 arbitrum:
   network: arbitrum-one
+  Pool:
+    storeEventsFrom: "431634914"
   Settlement:
     address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
     startBlock: 248291336
   Factory4:
     address: "0xE0e2Ba143EE5268DA87D529949a2521115987302"
     startBlock: 248291336
+base:
+  network: base
+  Pool:
+    storeEventsFrom: "42095020"
+  Settlement:
+    address: "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
+    startBlock: 23650208
+  Factory4:
+    address: "0x03362f847B4fAbC12e1Ce98b6b59F94401E4588e"
+    startBlock: 23650208

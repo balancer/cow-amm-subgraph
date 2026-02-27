@@ -1,23 +1,26 @@
 import { ZERO_ADDRESS, ZERO_BD } from "../helpers/constants";
 import {
-  createPoolSnapshot,
   createPoolToken,
-  createUser,
   getPoolShare,
-  getToken,
   loadPoolToken,
 } from "../helpers/entities";
-import { LOG_JOIN, LOG_EXIT, Transfer } from "../types/templates/Pool/Pool";
+import { LOG_JOIN, LOG_EXIT, Transfer } from "../types/templates/Pool/BPool";
 import { AddRemove, Pool, PoolToken, Swap } from "../types/schema";
 import { hexToDecimal, tokenToDecimal } from "../helpers/misc";
-import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { BPool, LOG_CALL, LOG_SWAP } from "../types/Factory/BPool";
+import {
+  Address,
+  BigDecimal,
+  BigInt,
+  Bytes,
+  dataSource,
+} from "@graphprotocol/graph-ts";
+import { BPool, LOG_CALL, LOG_SWAP } from "../types/Factory4/BPool";
 
 const LOG_JOIN_SIGNATURE = Bytes.fromHexString(
-  "0x63982df10efd8dfaaaa0fcc7f50b2d93b7cba26ccc48adee2873220d485dc39a"
+  "0x63982df10efd8dfaaaa0fcc7f50b2d93b7cba26ccc48adee2873220d485dc39a",
 );
 const LOG_EXIT_SIGNATURE = Bytes.fromHexString(
-  "0xe74c91552b64c2e2e7bd255639e004e693bd3e1d01cc33e65610b86afcc1ffed"
+  "0xe74c91552b64c2e2e7bd255639e004e693bd3e1d01cc33e65610b86afcc1ffed",
 );
 
 export function handleJoin(event: LOG_JOIN): void {
@@ -30,8 +33,6 @@ export function handleJoin(event: LOG_JOIN): void {
   let addRemoveId = event.transaction.hash.concat(poolAddress);
   let addRemove = AddRemove.load(addRemoveId);
   if (addRemove) return; // already processed
-
-  createUser(event.params.caller);
 
   let poolTokens = pool.tokens.load();
   let amounts = new Array<BigDecimal>(poolTokens.length);
@@ -67,9 +68,11 @@ export function handleJoin(event: LOG_JOIN): void {
   addRemove.blockTimestamp = event.block.timestamp;
   addRemove.transactionHash = event.transaction.hash;
   addRemove.logIndex = event.logIndex;
-  addRemove.save();
 
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
+  const storeEventsFrom = dataSource.context().getBigInt("storeEventsFrom");
+  if (event.block.number > storeEventsFrom) {
+    addRemove.save();
+  }
 }
 
 export function handleExit(event: LOG_EXIT): void {
@@ -82,8 +85,6 @@ export function handleExit(event: LOG_EXIT): void {
   let addRemoveId = event.transaction.hash.concat(poolAddress);
   let addRemove = AddRemove.load(addRemoveId);
   if (addRemove) return; // already processed
-
-  createUser(event.params.caller);
 
   let poolTokens = pool.tokens.load();
   let amounts = new Array<BigDecimal>(poolTokens.length);
@@ -119,14 +120,14 @@ export function handleExit(event: LOG_EXIT): void {
   addRemove.blockTimestamp = event.block.timestamp;
   addRemove.transactionHash = event.transaction.hash;
   addRemove.logIndex = event.logIndex;
-  addRemove.save();
 
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
+  const storeEventsFrom = dataSource.context().getBigInt("storeEventsFrom");
+  if (event.block.number > storeEventsFrom) {
+    addRemove.save();
+  }
 }
 
 export function handleSwap(event: LOG_SWAP): void {
-  createUser(event.transaction.from);
-
   let poolAddress = event.address;
 
   let pool = Pool.load(poolAddress);
@@ -144,11 +145,11 @@ export function handleSwap(event: LOG_SWAP): void {
 
   let tokenAmountIn = tokenToDecimal(
     event.params.tokenAmountIn,
-    poolTokenIn.decimals
+    poolTokenIn.decimals,
   );
   let tokenAmountOut = tokenToDecimal(
     event.params.tokenAmountOut,
-    poolTokenOut.decimals
+    poolTokenOut.decimals,
   );
 
   let swapFeeAmount = tokenAmountIn.times(pool.swapFee);
@@ -182,9 +183,10 @@ export function handleSwap(event: LOG_SWAP): void {
   swap.blockTimestamp = event.block.timestamp;
   swap.transactionHash = event.transaction.hash;
 
-  swap.save();
-
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
+  const storeEventsFrom = dataSource.context().getBigInt("storeEventsFrom");
+  if (event.block.number > storeEventsFrom) {
+    swap.save();
+  }
 }
 
 export function handleFinalize(event: LOG_CALL): void {
@@ -219,7 +221,7 @@ export function handleFinalize(event: LOG_CALL): void {
   }
 
   let addRemove = new AddRemove(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
+    event.transaction.hash.concatI32(event.logIndex.toI32()),
   );
   addRemove.type = "Add";
   addRemove.amounts = amounts;
@@ -230,22 +232,22 @@ export function handleFinalize(event: LOG_CALL): void {
   addRemove.blockTimestamp = event.block.timestamp;
   addRemove.transactionHash = event.transaction.hash;
   addRemove.logIndex = event.logIndex;
-  addRemove.save();
+
+  const storeEventsFrom = dataSource.context().getBigInt("storeEventsFrom");
+  if (event.block.number > storeEventsFrom) {
+    addRemove.save();
+  }
 
   pool.isInitialized = true;
   pool.save();
-
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
 }
 
 export function handleRebind(event: LOG_CALL): void {
-  createUser(event.params.caller);
-
   let poolAddress = event.address;
   let pool = Pool.load(poolAddress) as Pool;
 
   let tokenAddress = Address.fromString(
-    event.params.data.toHexString().slice(34, 74)
+    event.params.data.toHexString().slice(34, 74),
   );
   let poolTokenId = poolAddress.concat(tokenAddress);
   let poolToken = PoolToken.load(poolTokenId);
@@ -257,12 +259,10 @@ export function handleRebind(event: LOG_CALL): void {
   poolToken = PoolToken.load(poolTokenId) as PoolToken;
   let addedAmount = hexToDecimal(
     event.params.data.toHexString().slice(74, 138),
-    poolToken.decimals
+    poolToken.decimals,
   );
   poolToken.balance = addedAmount;
   poolToken.save();
-
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
 }
 
 export function handleSetSwapFee(event: LOG_CALL): void {
@@ -292,28 +292,28 @@ export function handleTransfer(event: Transfer): void {
 
   if (isMint) {
     poolShareTo.balance = poolShareTo.balance.plus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
     poolShareTo.save();
     pool.totalShares = pool.totalShares.plus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
   } else if (isBurn) {
     poolShareFrom.balance = poolShareFrom.balance.minus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
     poolShareFrom.save();
     pool.totalShares = pool.totalShares.minus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
   } else {
     poolShareTo.balance = poolShareTo.balance.plus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
     poolShareTo.save();
 
     poolShareFrom.balance = poolShareFrom.balance.minus(
-      tokenToDecimal(event.params.amt, BPT_DECIMALS)
+      tokenToDecimal(event.params.amt, BPT_DECIMALS),
     );
     poolShareFrom.save();
   }
@@ -335,6 +335,4 @@ export function handleTransfer(event: Transfer): void {
   }
 
   pool.save();
-
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
 }

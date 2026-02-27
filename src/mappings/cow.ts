@@ -1,30 +1,30 @@
-import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigInt,
+  Bytes,
+  dataSource,
+  log,
+} from "@graphprotocol/graph-ts";
 
 import { Pool, Swap } from "../types/schema";
 import { Trade } from "../types/Settlement/CoWSettlement";
 import { scaleUp, tokenToDecimal } from "../helpers/misc";
-import {
-  createPoolSnapshot,
-  createUser,
-  loadPoolToken,
-} from "../helpers/entities";
+import { loadPoolToken } from "../helpers/entities";
 import { ZERO_BD, ZERO_BI } from "../helpers/constants";
-import { BPool } from "../types/Factory/BPool";
+import { BPool } from "../types/Factory4/BPool";
 
 const COW_SETTLEMENT = Bytes.fromHexString(
-  "0x9008D19f58AAbD9eD0D60971565AA8510560ab41"
+  "0x9008D19f58AAbD9eD0D60971565AA8510560ab41",
 );
 
 const COW_TRADE_SIGNATURE = Bytes.fromHexString(
-  "0xa07a543ab8a018198e99ca0184c93fe9050a79400a0a723441f84de1d972cc17"
+  "0xa07a543ab8a018198e99ca0184c93fe9050a79400a0a723441f84de1d972cc17",
 );
 const ERC20_TRANSFER_SIGNATURE = Bytes.fromHexString(
-  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 );
 
 export function handleTrade(event: Trade): void {
-  createUser(event.transaction.from);
-
   let poolAddress = event.params.owner;
 
   let pool = Pool.load(poolAddress);
@@ -42,11 +42,11 @@ export function handleTrade(event: Trade): void {
 
   let tokenAmountIn = tokenToDecimal(
     event.params.buyAmount,
-    poolTokenIn.decimals
+    poolTokenIn.decimals,
   );
   let tokenAmountOut = tokenToDecimal(
     event.params.sellAmount,
-    poolTokenOut.decimals
+    poolTokenOut.decimals,
   );
 
   let previousInAmount = poolTokenIn.balance;
@@ -119,11 +119,11 @@ export function handleTrade(event: Trade): void {
   if (tradeMatches.length > 0) {
     maxMatch = tradeMatches.reduce(
       (max: i32, current: i32) => (current > max ? current : max),
-      tradeMatches[0]
+      tradeMatches[0],
     );
     minMatch = tradeMatches.reduce(
       (min: i32, current: i32) => (current < min ? current : min),
-      tradeMatches[0]
+      tradeMatches[0],
     );
   }
 
@@ -136,14 +136,14 @@ export function handleTrade(event: Trade): void {
     scaleUp(previousOutAmount, poolTokenOut.decimals),
     scaleUp(poolTokenOut.weight, 18),
     scaleUp(tokenAmountIn, poolTokenIn.decimals),
-    ZERO_BI
+    ZERO_BI,
   );
   let expectedOut = ZERO_BD;
   let surplusAmount = ZERO_BD;
   if (!expectedOutResult.reverted) {
     expectedOut = tokenToDecimal(
       expectedOutResult.value,
-      poolTokenOut.decimals
+      poolTokenOut.decimals,
     );
     surplusAmount = expectedOut.minus(tokenAmountOut);
     log.info("Expected Out: {} Surplus: {}", [
@@ -159,23 +159,21 @@ export function handleTrade(event: Trade): void {
 
   if (maxMatch == 4) {
     poolTokenOut.swapFee = poolTokenOut.swapFee.plus(surplusAmount);
-    poolTokenOut.save();
 
     swap.swapFeeAmount = surplusAmount;
     swap.swapFeeToken = tokenOutAddress;
   } else if (maxMatch - minMatch == 2) {
     poolTokenOut.surplus = poolTokenOut.surplus.plus(surplusAmount);
-    poolTokenOut.save();
 
     swap.surplusToken = tokenOutAddress;
     swap.surplusAmount = surplusAmount;
   } else {
     poolTokenOut.swapFee = poolTokenOut.swapFee.plus(surplusAmount);
-    poolTokenOut.save();
 
     swap.swapFeeAmount = surplusAmount;
     swap.swapFeeToken = tokenOutAddress;
   }
+  poolTokenOut.save();
 
   swap.pool = poolAddress;
   swap.tokenIn = tokenInAddress;
@@ -192,7 +190,8 @@ export function handleTrade(event: Trade): void {
   swap.blockTimestamp = event.block.timestamp;
   swap.transactionHash = event.transaction.hash;
 
-  swap.save();
-
-  createPoolSnapshot(pool, event.block.timestamp.toI32());
+  const storeEventsFrom = dataSource.context().getBigInt("storeEventsFrom");
+  if (event.block.number > storeEventsFrom) {
+    swap.save();
+  }
 }
